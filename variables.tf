@@ -80,3 +80,21 @@ variable "price_class" {
   type        = string
   default     = "PriceClass_All"
 }
+
+variable "staging_bucket_name" {
+  description = "Name of the S3 bucket for the staging website."
+  type        = string
+  default     = "stage.lukasniessen.com"
+}
+
+variable "staging_domain_name" {
+  description = "Domain for the staging environment."
+  type        = string
+  default     = "stage.lukasniessen.com"
+}
+
+variable "staging_price_class" {
+  description = "CloudFront price class for the staging distribution."
+  type        = string
+  default     = "PriceClass_100"
+}

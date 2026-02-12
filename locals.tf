@@ -7,4 +7,13 @@ locals {
     },
     var.custom_tags,
   )
+
+  staging_tags = merge(
+    {
+      Project     = var.project_name
+      Environment = "staging"
+      ManagedBy   = "Terraform"
+    },
+    var.custom_tags,
+  )
 }

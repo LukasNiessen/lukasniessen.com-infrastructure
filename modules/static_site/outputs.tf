@@ -22,3 +22,8 @@ output "certificate_arn" {
   description = "ARN of the ACM certificate used by CloudFront."
   value       = aws_acm_certificate.this.arn
 }
+
+output "certificate_validation_records" {
+  description = "DNS CNAME records needed to validate the ACM certificate."
+  value       = aws_acm_certificate.this.domain_validation_options
+}

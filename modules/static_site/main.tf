@@ -8,8 +8,18 @@ resource "aws_s3_bucket" "this" {
   tags          = var.tags
 }
 
-resource "aws_s3_bucket_policy" "this" {
+resource "aws_s3_bucket_public_access_block" "this" {
   bucket = aws_s3_bucket.this.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "this" {
+  depends_on = [aws_s3_bucket_public_access_block.this]
+  bucket     = aws_s3_bucket.this.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -112,8 +122,12 @@ resource "aws_cloudfront_distribution" "this" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate.this.arn
+    acm_certificate_arn      = aws_acm_certificate_validation.this.certificate_arn
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
   }
+}
+
+resource "aws_acm_certificate_validation" "this" {
+  certificate_arn = aws_acm_certificate.this.arn
 }
