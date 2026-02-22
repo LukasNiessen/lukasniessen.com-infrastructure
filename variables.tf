@@ -98,3 +98,83 @@ variable "staging_price_class" {
   type        = string
   default     = "PriceClass_100"
 }
+
+# =============================================================================
+# ECS Fargate
+# =============================================================================
+
+variable "ecs_container_image" {
+  description = "Docker image for the ECS tasks."
+  type        = string
+  default     = "nginx:latest"
+}
+
+variable "ecs_container_port" {
+  description = "Port the container listens on."
+  type        = number
+  default     = 8080
+}
+
+variable "ecs_cpu" {
+  description = "CPU units for ECS tasks (1024 = 1 vCPU)."
+  type        = number
+  default     = 256
+}
+
+variable "ecs_memory" {
+  description = "Memory in MiB for ECS tasks."
+  type        = number
+  default     = 512
+}
+
+variable "prod_ecs_desired_count" {
+  description = "Number of ECS tasks for production."
+  type        = number
+  default     = 2
+}
+
+variable "staging_ecs_desired_count" {
+  description = "Number of ECS tasks for staging."
+  type        = number
+  default     = 1
+}
+
+# =============================================================================
+# RDS PostgreSQL
+# =============================================================================
+
+variable "prod_rds_instance_class" {
+  description = "RDS instance class for production."
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "staging_rds_instance_class" {
+  description = "RDS instance class for staging."
+  type        = string
+  default     = "db.t4g.micro"
+}
+
+variable "rds_allocated_storage" {
+  description = "Allocated storage in GiB for RDS instances."
+  type        = number
+  default     = 20
+}
+
+variable "rds_engine_version" {
+  description = "PostgreSQL engine version."
+  type        = string
+  default     = "16.4"
+}
+
+variable "prod_rds_multi_az" {
+  description = "Enable Multi-AZ for production RDS."
+  type        = bool
+  default     = false
+}
+
+variable "prod_rds_deletion_protection" {
+  description = "Enable deletion protection for production RDS."
+  type        = bool
+  default     = true
+}
