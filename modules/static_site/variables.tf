@@ -44,6 +44,12 @@ variable "enable_versioning" {
   default     = false
 }
 
+variable "api_alb_dns_name" {
+  description = "DNS name of the ALB for /api/* routing. Leave empty to skip."
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Tags applied to managed resources."
   type        = map(string)

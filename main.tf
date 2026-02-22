@@ -9,6 +9,7 @@ module "static_site" {
   error_document          = var.website_error_document
   price_class             = var.price_class
   enable_versioning       = var.enable_bucket_versioning
+  api_alb_dns_name        = module.prod_ecs.alb_dns_name
   tags                    = local.default_tags
 }
 
@@ -23,6 +24,7 @@ module "staging_site" {
   error_document          = var.website_error_document
   price_class             = var.staging_price_class
   enable_versioning       = var.enable_bucket_versioning
+  api_alb_dns_name        = module.staging_ecs.alb_dns_name
   tags                    = local.staging_tags
 }
 

@@ -106,6 +106,36 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
+  dynamic "origin" {
+    for_each = var.api_alb_dns_name != "" ? [var.api_alb_dns_name] : []
+    content {
+      domain_name = origin.value
+      origin_id   = "alb-api"
+
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "http-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
+  }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = var.api_alb_dns_name != "" ? [var.api_alb_dns_name] : []
+    content {
+      path_pattern           = "/api/*"
+      allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+      cached_methods         = ["GET", "HEAD"]
+      target_origin_id       = "alb-api"
+      viewer_protocol_policy = "redirect-to-https"
+      compress               = true
+
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3"
+    }
+  }
+
   default_cache_behavior {
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
