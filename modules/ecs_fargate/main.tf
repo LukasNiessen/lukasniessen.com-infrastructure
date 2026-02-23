@@ -1,9 +1,13 @@
+locals {
+  safe_name = replace(var.name, ".", "-")
+}
+
 ################################################################################
 # CloudWatch Log Group
 ################################################################################
 
 resource "aws_cloudwatch_log_group" "this" {
-  name              = "/ecs/${var.name}"
+  name              = "/ecs/${local.safe_name}"
   retention_in_days = 30
 
   tags = var.tags
@@ -14,7 +18,7 @@ resource "aws_cloudwatch_log_group" "this" {
 ################################################################################
 
 resource "aws_ecs_cluster" "this" {
-  name = var.name
+  name = local.safe_name
 
   setting {
     name  = "containerInsights"
@@ -43,7 +47,7 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "task_execution" {
-  name = "${var.name}-task-execution"
+  name = "${local.safe_name}-task-execution"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -67,7 +71,7 @@ resource "aws_iam_role_policy_attachment" "task_execution" {
 resource "aws_iam_role_policy" "task_execution_secrets" {
   count = length(var.secrets) > 0 ? 1 : 0
 
-  name = "${var.name}-secrets-access"
+  name = "${local.safe_name}-secrets-access"
   role = aws_iam_role.task_execution.id
 
   policy = jsonencode({
@@ -81,7 +85,7 @@ resource "aws_iam_role_policy" "task_execution_secrets" {
 }
 
 resource "aws_iam_role" "task" {
-  name = "${var.name}-task"
+  name = "${local.safe_name}-task"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -102,7 +106,7 @@ resource "aws_iam_role" "task" {
 ################################################################################
 
 resource "aws_ecs_task_definition" "this" {
-  family                   = var.name
+  family                   = local.safe_name
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = var.cpu
@@ -116,7 +120,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   container_definitions = jsonencode([{
-    name      = var.name
+    name      = local.safe_name
     image     = var.container_image
     essential = true
 
@@ -146,7 +150,7 @@ resource "aws_ecs_task_definition" "this" {
 ################################################################################
 
 resource "aws_security_group" "alb" {
-  name_prefix = "${var.name}-alb-"
+  name_prefix = "${local.safe_name}-alb-"
   description = "Security group for ALB"
   vpc_id      = var.vpc_id
 
@@ -187,7 +191,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_to_ecs" {
 }
 
 resource "aws_lb" "this" {
-  name               = var.name
+  name               = local.safe_name
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
@@ -238,7 +242,7 @@ resource "aws_lb_listener" "http" {
 ################################################################################
 
 resource "aws_security_group" "ecs" {
-  name_prefix = "${var.name}-ecs-"
+  name_prefix = "${local.safe_name}-ecs-"
   description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
@@ -272,7 +276,7 @@ resource "aws_vpc_security_group_egress_rule" "ecs_all" {
 ################################################################################
 
 resource "aws_ecs_service" "this" {
-  name            = var.name
+  name            = local.safe_name
   cluster         = aws_ecs_cluster.this.id
   task_definition = aws_ecs_task_definition.this.arn
   desired_count   = var.desired_count
@@ -290,7 +294,7 @@ resource "aws_ecs_service" "this" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.this.arn
-    container_name   = var.name
+    container_name   = local.safe_name
     container_port   = var.container_port
   }
 
